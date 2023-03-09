@@ -1,2 +1,2 @@
 # Yoru
-![](/Yoru.jpg?raw=true)
+![](/yoruzinha.png?raw=true)
