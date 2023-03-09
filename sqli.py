@@ -5,7 +5,7 @@ from art import *
 
 def help():
 	tprint("\nSQLI","slant")
-	print("\n[-] Example: python3 sqli.py -u http://192.168.1.102/contact.php?id= \n")
+	print("\n[-] Example: python3 sqli.py -u 'http://192.168.1.102/contact.php?id= \n'")
 
 def main():
 	import requests, sys, random, string, os
